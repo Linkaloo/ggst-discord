@@ -16,3 +16,8 @@ app.use(bodyParser.urlencoded({ verify: rawBodySaver, extended: true }));
 app.use(bodyParser.raw({ verify: rawBodySaver, type: "*/*" }));
 
 app.use(middleWare.signatureValidation);
+
+const port = process.env.PORT || 3000;
+app.listen(port, () => {
+  console.log(`Listening on port: ${port}`);
+});

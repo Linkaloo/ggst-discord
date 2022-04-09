@@ -40,6 +40,7 @@ function verifyMessage(hmac, verifySignature) {
 const handleData = async (req) => {
   console.log(req.body);
   const twitchEvent = req.body.event;
+  console.log(twitchEvent);
 };
 
 export const signatureValidation = async (req, res, next) => {

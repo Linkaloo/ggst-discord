@@ -1,3 +1,3 @@
-export * from "./characters";
-export * from "./players";
-export * from "./moves";
+export * from "./characters.js";
+export * from "./players.js";
+export * from "./moves.js";

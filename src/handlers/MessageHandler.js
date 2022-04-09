@@ -1,6 +1,6 @@
 import Discord from "discord.js";
-import * as constants from "../constants";
-import * as ggst from "./ggstHandler";
+import * as constants from "../constants/index.js";
+import * as ggst from "./ggstHandler.js";
 
 const commandHandler = async (message) => {
   const command = message.content.split(" ")[0].trim();

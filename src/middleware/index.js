@@ -1,1 +1,1 @@
-export * from "./twitchEventListener";
+export * from "./twitchEventListener.js";

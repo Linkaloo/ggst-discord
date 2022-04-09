@@ -1,2 +1,2 @@
-export * from "./CommandList";
-export * from "./CharacterAliases";
+export * from "./CommandList.js";
+export * from "./CharacterAliases.js";

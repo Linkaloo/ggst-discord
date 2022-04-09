@@ -1,4 +1,4 @@
-import requests from "../requests";
+import * as requests from "../requests/index.js";
 
 const twitchStreams = async () => {
   console.log("ready");

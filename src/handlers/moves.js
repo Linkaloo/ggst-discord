@@ -1,7 +1,7 @@
 import Discord from "discord.js";
 import AsciiTable from "ascii-table";
-import * as requests from "../requests";
-import { parseCharacterAlias } from "../utility/parseAliases";
+import * as requests from "../requests/index.js";
+import { parseCharacterAlias } from "../utility/parseAliases.js";
 
 export const characterMoveHandler = async (message) => {
   const baseMessage = message.content.substring(message.content.indexOf(" ") + 1);

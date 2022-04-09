@@ -1,5 +1,5 @@
 import Discord from "discord.js";
-import * as requests from "../requests";
+import * as requests from "../requests/index.js";
 
 export const characterHandler = async (message) => {
   const { characters } = await requests.getCharacters({});

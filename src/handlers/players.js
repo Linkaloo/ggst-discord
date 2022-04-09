@@ -1,5 +1,5 @@
 import Discord from "discord.js";
-import * as requests from "../requests";
+import * as requests from "../requests/index.js";
 
 export const playerHandler = async (message) => {
   const baseMessage = message.content.substring(message.content.indexOf("s") + 2);

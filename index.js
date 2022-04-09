@@ -21,3 +21,11 @@ const port = process.env.PORT || 3000;
 app.listen(port, () => {
   console.log(`Listening on port: ${port}`);
 });
+
+app.use("/", (req, res) => {
+  console.log("home");
+  res.sendStatus(200);
+});
+app.use("*", (req, res) => {
+  res.status(404).json({ error: "not found" });
+});

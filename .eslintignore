@@ -1,0 +1,5 @@
+docker-compose.yml
+package-lock.json
+procfile
+shared.env
+.env

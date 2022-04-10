@@ -1,6 +1,5 @@
 /* eslint-disable import/prefer-default-export */
 import crypto from "crypto";
-import { twitchHandler } from "../handlers/twitchEventHandler.js";
 
 // Notification request headers
 const TWITCH_MESSAGE_ID = "Twitch-Eventsub-Message-Id".toLowerCase();
@@ -39,9 +38,10 @@ function verifyMessage(hmac, verifySignature) {
 
 export const signatureValidation = async (req, res, next) => {
   console.log("eventSub");
-
+  console.log(req.headers);
   if (!req.headers["twitch-eventsub-message-signature"]) {
     console.log("before next");
+    req.twitchReq = false;
     next();
     return;
   }
@@ -49,7 +49,7 @@ export const signatureValidation = async (req, res, next) => {
   const secret = getSecret();
   const message = getHmacMessage(req);
   const hmac = HMAC_PREFIX + getHmac(secret, message);
-
+  console.log(hmac);
   if (verifyMessage(hmac, req.headers[TWITCH_MESSAGE_SIGNATURE]) === true) {
     console.log("signatures match");
 
@@ -59,7 +59,8 @@ export const signatureValidation = async (req, res, next) => {
     if (MESSAGE_TYPE_NOTIFICATION === req.headers[MESSAGE_TYPE]) {
       // TODO: Do something with the event's data.
       console.log("message notification");
-      twitchHandler(req);
+      req.twitchReq = true;
+      next();
 
       console.log(`Event type: ${notification.subscription.type}`);
       console.log(JSON.stringify(notification.event, null, 4));

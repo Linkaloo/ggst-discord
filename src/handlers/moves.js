@@ -51,6 +51,12 @@ export const addMoveHandler = async (message) => {
   const moveString = baseMessage.split(",").filter((s) => s !== "");
   const embed = new Discord.MessageEmbed();
 
+  if (baseMessage[0] === "!" || moveString.length < 9) {
+    embed.setColor("RED");
+    embed.setDescription("Provide the character name, input, damage, guard, startup, active frames, recovery frames, on block frames, and the attack level, comma separated");
+    return { embeds: [embed] };
+  }
+
   const character = moveString[0].replace(/^\s/g, "").replace(/\s{2,}/g, " ");
   const input = moveString[1].replace(/^\s/g, "").replace(/\s{2,}/g, " ");
   const damage = moveString[2].replace(/^\s/g, "").replace(/\s{2,}/g, " ");

@@ -1,6 +1,8 @@
 import express from "express";
 import bodyParser from "body-parser";
 import * as middleWare from "./src/middleware/index.js";
+import { twitchHandler } from "./src/handlers/twitchEventHandler.js";
+import Bot from "./src/Bot.js";
 
 const app = express();
 
@@ -14,7 +16,7 @@ app.use(bodyParser.json({ verify: rawBodySaver }));
 app.use(bodyParser.urlencoded({ verify: rawBodySaver, extended: true }));
 app.use(bodyParser.raw({ verify: rawBodySaver, type: "*/*" }));
 
-app.use(middleWare.signatureValidation);
+app.use(middleWare.signatureValidation, twitchHandler);
 
 const port = process.env.PORT || 3001;
 app.listen(port, () => {

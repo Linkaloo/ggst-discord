@@ -21,12 +21,22 @@ export const addCharacterHandler = async (message) => {
   const params = baseMessage.split(",").filter((s) => s !== "");
   const embed = new Discord.MessageEmbed();
 
-  if (params.length < 2) {
-    return new Discord.MessageEmbed().setDescription("Provide the character name and optionally an image url").setColor("RED");
+  if (baseMessage[0] === "!") {
+    embed.setColor("RED");
+    embed.setDescription("Provide the character name and optionally an image url, comma separated");
+    return { embeds: [embed] };
   }
 
   const characterName = params[0].replace(/\s{2,}/g, " ");
-  const characterImage = params[1].replace(/^\s/g, "").replace(/\s{2,}/g, " ");
+
+  if (characterName.includes("http")) {
+    embed.setColor("RED");
+    embed.setDescription("Only the image should be a url");
+    return { embeds: [embed] };
+  }
+
+  let characterImage = "";
+  if (params.length > 1) { characterImage = params[1].replace(/^\s/g, "").replace(/\s{2,}/g, " "); }
 
   const body = {
     name: characterName,
@@ -60,8 +70,7 @@ export const deleteCharacterHandler = async (message) => {
   }
 
   const response = await requests.deleteCharacter(character);
-  console.log(response);
-  if (response.error) {
+  if (response.response.data.error === "not found") {
     embed.setTitle("Error");
     embed.setDescription("Could not delete character");
     embed.setColor("RED");

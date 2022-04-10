@@ -2,16 +2,30 @@ import Discord from "discord.js";
 import * as constants from "../constants/index.js";
 import * as ggst from "./ggstHandler.js";
 
+const listCommands = () => {
+  const embed = new Discord.MessageEmbed();
+  const commandList = Object.keys(constants.commands);
+  let embedFieldList = "";
+
+  commandList.forEach((command) => {
+    embedFieldList += `${command}\n`;
+  });
+
+  embed.setTitle("Discord Commands");
+  embed.addField("Command", embedFieldList);
+  embed.setColor("GREEN");
+  return { embeds: [embed] };
+};
+
 const commandHandler = async (message) => {
   const command = message.content.split(" ")[0].trim();
   switch (command) {
-    case "!help": console.log("help");
-      break;
+    case "!help": return listCommands();
     case "!players": return ggst.playerHandler(message);
     case "!addplayer": return ggst.addPlayerHandler(message);
     // case "!updateplayer": return ggst.updatePlayerHandler(message);
     case "!delplayer": return ggst.deletePlayerHandler(message);
-    case "!delall": return ggst.deleteAllPlayersHandler(message);
+    case "!delallplayers": return ggst.deleteAllPlayersHandler(message);
 
     case "!characters": return ggst.characterHandler(message);
     case "!addcharacter": return ggst.addCharacterHandler(message);

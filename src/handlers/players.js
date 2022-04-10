@@ -1,6 +1,6 @@
 import Discord from "discord.js";
 import * as requests from "../requests/index.js";
-import { addHook } from "./twitchEventHandler.js";
+import { addHook } from "../utility/twitchAuth.js";
 
 export const playerHandler = async (message) => {
   const baseMessage = message.content.substring(message.content.indexOf("s") + 2);
@@ -8,6 +8,13 @@ export const playerHandler = async (message) => {
   const guild = message.guildId;
   const embed = new Discord.MessageEmbed();
   const { players } = await requests.getPlayers({ guild, character });
+
+  if (players.length === 0) {
+    embed.setDescription("There are no players in this server");
+    embed.setTitle("Warning");
+    embed.setColor("YELLOW");
+    return { embeds: [embed] };
+  }
 
   players.forEach((player) => {
     if (player.stream) {
@@ -21,24 +28,30 @@ export const playerHandler = async (message) => {
     }
   });
   embed.setTitle("Players");
-
+  embed.setColor("GREEN");
   return { embeds: [embed] };
 };
 
 export const addPlayerHandler = async (message) => {
-  const baseMessage = message.content.substring(message.content.indexOf("r") + 2);
+  const baseMessage = message.content.substring(message.content.indexOf(" ") + 1);
   const params = baseMessage.split(",").filter((s) => s !== "");
   const embed = new Discord.MessageEmbed();
 
-  if (params.length < 3) {
-    const embed = new Discord.MessageEmbed().setDescription("Provide a name, region, character, and stream if applicable").setColor("RED");
+  if (baseMessage[0] === "!" || params.length < 2) {
+    const embed = new Discord.MessageEmbed().setDescription("Provide a name, character, region, and stream, comma separated").setColor("RED");
     return { embeds: [embed] };
   }
 
   const player = params[0].replace(/\s{2,}/g, " ");
-  const region = params[1].replace(/^\s/g, "").replace(/\s{2,}/g, " ");
-  const character = params[2].replace(/^\s/g, "").replace(/\s{2,}/g, " ");
-  const stream = params.length > 3 ? params[3].replace(/^\s/g, "").replace(/\s{2,}/g, " ") : null;
+  const character = params[1].replace(/^\s/g, "").replace(/\s{2,}/g, " ");
+  const region = params.length === 3 ? params[2].replace(/^\s/g, "").replace(/\s{2,}/g, " ") : null;
+  const stream = params.length === 4 ? params[3].replace(/^\s/g, "").replace(/\s{2,}/g, " ") : null;
+
+  if (player.includes("http") || character.includes("http") || (region && region.includes("http"))) {
+    embed.setColor("RED");
+    embed.setDescription("Provide your arguments comma separated, url only for stream");
+    return { embeds: [embed] };
+  }
 
   const body = {
     name: player,
@@ -68,9 +81,8 @@ export const addPlayerHandler = async (message) => {
   embed.setDescription(`Succesfully added player: **${response[0].name}**`);
   embed.setColor("GREEN");
 
-  if (response[0].stream !== "") {
-    const username = response[0].stream.substring(22);
-    console.log(username);
+  if (stream !== null) {
+    const username = stream.substring(22);
     const hook = await addHook(username);
     if (hook === "success") {
       embed.setFooter({ text: "player's stream added to notifications" });
@@ -122,6 +134,23 @@ export const deleteAllPlayersHandler = async (message) => {
   const baseMessage = message.content.substring(message.content.indexOf(" ") + 1);
   const character = baseMessage.split(" ").filter((s) => s !== "").join(" ");
   const embed = new Discord.MessageEmbed();
+  if (baseMessage[0] === "!") {
+    embed.setTitle("Error");
+    embed.setDescription("Enter a character to delete all the player records");
+    embed.setColor("RED");
+    return { embeds: [embed] };
+  }
 
-  const response = await requests.deletePlayer();
+  const response = await requests.deletePlayer(message.guildId);
+  if (response.total_deleted === 0) {
+    embed.setTitle("Warning");
+    embed.setDescription(`There were no players for character ${character} to delete`);
+    embed.setColor("YELLOW");
+    return { embeds: [embed] };
+  }
+
+  embed.setTitle("Success");
+  embed.setDescription(`Deleted ${response.total_deleted} players for character ${character}`);
+  embed.setColor("GREEN");
+  return { embeds: [embed] };
 };

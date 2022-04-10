@@ -1,8 +1,6 @@
 /* eslint-disable import/prefer-default-export */
-import axios from "axios";
 import * as requests from "../requests/index.js";
 import Bot from "../Bot.js";
-import { authenticate } from "../utility/twitchAuth.js";
 
 const handleLiveChannel = async (eventInfo) => {
   const streamName = eventInfo.broadcaster_user_name;
@@ -20,58 +18,15 @@ const handleLiveChannel = async (eventInfo) => {
   });
 };
 
-export const twitchHandler = (eventInfo) => {
-  const eventType = eventInfo.body.subscription.type;
+export const twitchHandler = (req, res, next) => {
+  if (!req.twitchReq) {
+    next();
+    return;
+  }
+  const eventType = req.body.subscription.type;
   switch (eventType) {
-    case "stream.online": handleLiveChannel(eventInfo.body.event);
+    case "stream.online": handleLiveChannel(req.body.event);
       break;
     default: break;
-  }
-};
-
-export const addHook = async (username) => {
-  const token = authenticate();
-  try {
-    console.log("getting user info");
-    const user = await axios({
-      method: "GET",
-      url: `https://api.twitch.tv/helix/users?login=${username}`,
-      headers: {
-        Authorization: `Bearer ${token.access_token}`,
-        "Client-ID": process.env.TWITCH_CLIENT_ID,
-      },
-    });
-
-    const userid = user.data.data[0].id;
-    console.log(userid);
-
-    const body = {
-      version: "1",
-      type: "stream.online",
-      condition: {
-        broadcaster_user_id: userid,
-      },
-      transport: {
-        method: "webhook",
-        callback: "https://ggst-discord.herokuapp.com",
-        secret: process.env.SECRET,
-      },
-    };
-
-    console.log("trying to add hook");
-    const sub = await axios({
-      method: "POST",
-      url: process.env.TWITCH_SUB,
-      headers: {
-        Authorization: `Bearer ${token.access_token}`,
-        "Client-ID": process.env.TWITCH_CLIENT_ID,
-      },
-      data: body,
-    });
-
-    return "success";
-  } catch (err) {
-    console.log(err);
-    return err.message;
   }
 };

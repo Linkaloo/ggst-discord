@@ -49,6 +49,7 @@ export const addPlayerHandler = async (message) => {
 
   const response = await requests.addPlayer(body);
   if (response.error) {
+    console.log(response.error);
     embed.setDescription("could not add player");
     embed.setTitle("Error");
     embed.setColor("RED");

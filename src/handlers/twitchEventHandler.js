@@ -23,7 +23,7 @@ const handleLiveChannel = async (eventInfo) => {
 export const twitchHandler = (eventInfo) => {
   const eventType = eventInfo.subscription.type;
   switch (eventType) {
-    case "stream.online": handleLiveChannel();
+    case "stream.online": handleLiveChannel(eventInfo);
       break;
     default: break;
   }

@@ -3,7 +3,9 @@ import * as requests from "../requests/index.js";
 import Bot from "../Bot.js";
 
 const handleLiveChannel = async (eventInfo) => {
+  console.log("handler");
   console.log(eventInfo);
+  console.log(eventInfo.broadcaster_user_name);
   const streamName = eventInfo.broadcaster_user_name;
   const { players } = await requests.getPlayers({ streamName });
 
@@ -24,7 +26,7 @@ const handleLiveChannel = async (eventInfo) => {
 export const twitchHandler = (eventInfo) => {
   const eventType = eventInfo.body.subscription.type;
   switch (eventType) {
-    case "stream.online": handleLiveChannel(eventInfo.event);
+    case "stream.online": handleLiveChannel(eventInfo.body.event);
       break;
     default: break;
   }

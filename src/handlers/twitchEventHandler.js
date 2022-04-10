@@ -41,11 +41,8 @@ export const addHook = async (username) => {
         "Client-ID": process.env.TWITCH_CLIENT_ID,
       },
     });
-    console.log(user.data);
-    console.log("sep");
-    console.log(user.data.data);
-    console.log("sep");
-    const userid = user.body.data.id;
+
+    const userid = user.data.data[0].id;
     console.log(userid);
 
     const body = {

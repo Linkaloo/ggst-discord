@@ -22,7 +22,8 @@ const handleLiveChannel = async (eventInfo) => {
 };
 
 export const twitchHandler = (eventInfo) => {
-  const eventType = eventInfo.subscription.type;
+  console.log(eventInfo);
+  const { eventType } = eventInfo.subscription;
   switch (eventType) {
     case "stream.online": handleLiveChannel(eventInfo);
       break;

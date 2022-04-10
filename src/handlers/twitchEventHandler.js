@@ -43,6 +43,7 @@ export const addHook = async (username) => {
     });
 
     const userid = user.data.id;
+    console.log(userid);
 
     const body = {
       version: "1",
@@ -58,7 +59,7 @@ export const addHook = async (username) => {
     };
 
     console.log("trying to add hook");
-    await axios({
+    const sub = await axios({
       method: "POST",
       url: process.env.TWITCH_SUB,
       headers: {
@@ -70,6 +71,7 @@ export const addHook = async (username) => {
 
     return "success";
   } catch (err) {
+    console.log(err);
     return err.message;
   }
 };

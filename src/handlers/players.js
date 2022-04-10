@@ -73,9 +73,9 @@ export const addPlayerHandler = async (message) => {
     console.log(username);
     const hook = await addHook(username);
     if (hook === "success") {
-      embed.footer = "player's stream added to notifications";
+      embed.setFooter({ text: "player's stream added to notifications" });
     } else {
-      embed.footer = "player's stream was not added";
+      embed.setFooter({ text: "player's stream was not added" });
     }
   }
 

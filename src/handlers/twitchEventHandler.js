@@ -3,6 +3,7 @@ import * as requests from "../requests/index.js";
 import Bot from "../Bot.js";
 
 const handleLiveChannel = async (eventInfo) => {
+  console.log(eventInfo);
   const streamName = eventInfo.event.broadcaster_user_name;
   const { players } = await requests.getPlayers({ streamName });
 

@@ -10,7 +10,7 @@ const handleLiveChannel = async (eventInfo) => {
     const guild = player.guild_id;
     const discordGuild = await Bot.guilds.cache.get(guild);
     try {
-      const channel = discordGuild.channels.cache.find((c) => c.name === "bot-test");
+      const channel = discordGuild.channels.cache.find((c) => c.name === process.env.DISCORD_TWITCH_CHANNEL);
       channel.send(`${player.stream} is now live!`);
     } catch (err) {
       console.log(err);

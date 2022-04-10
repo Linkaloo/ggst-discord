@@ -4,10 +4,10 @@ import * as requests from "../requests/index.js";
 export const playerHandler = async (message) => {
   const baseMessage = message.content.substring(message.content.indexOf("s") + 2);
   const character = baseMessage.split(" ").filter((s) => s !== "").join(" ");
-  const guild = parseInt(message.guildId, 10);
+  const guild = message.guildId;
   const embed = new Discord.MessageEmbed();
   const { players } = await requests.getPlayers({ guild, character });
-
+  console.log(players);
   players.forEach((player) => {
     if (player.stream) {
       embed.addFields(

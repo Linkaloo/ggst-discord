@@ -3,7 +3,7 @@ import axios from "axios";
 export const getCharacterFrameData = async (characterName) => {
   const request = await axios({
     method: "GET",
-    url: `${process.env.BASE}/attacks/${characterName}`,
+    url: `${process.env.BASE_SERVER}/attacks/${characterName}`,
   });
 
   return request.data;
@@ -13,7 +13,7 @@ export const addFrameData = async (body) => {
   try {
     const request = await axios({
       method: "POST",
-      url: `${process.env.BASE}/attacks`,
+      url: `${process.env.BASE_SERVER}/attacks`,
       data: body,
     });
     return request.data;
@@ -30,7 +30,7 @@ export const allFrameData = async (move) => {
   try {
     const request = await axios({
       method: "GET",
-      url: `${process.env.BASE}/attacks/all/${move}`,
+      url: `${process.env.BASE_SERVER}/attacks/all/${move}`,
     });
 
     return request.data;
@@ -43,7 +43,7 @@ export const deleteMove = async (character, input) => {
   try {
     const request = await axios({
       method: "DELETE",
-      url: `${process.env.BASE}/attacks/${character}/${input}`,
+      url: `${process.env.BASE_SERVER}/attacks/${character}/${input}`,
     });
 
     return request.data;

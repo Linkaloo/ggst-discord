@@ -1,12 +1,11 @@
-import Discord from "discord.js";
 import axios from "axios";
 
 export const getPlayers = async (params) => {
-  if (params.guild && params.character) {
+  if (params.guild !== undefined && params.character !== "") {
     try {
       const request = await axios({
         method: "GET",
-        url: `${process.env.BASE}/players/guild=${params.guild}/character=${params.character}`,
+        url: `${process.env.BASE_SERVER}/players/guild=${params.guild}/character=${params.character}`,
       });
       return request.data;
     } catch (err) {
@@ -16,7 +15,7 @@ export const getPlayers = async (params) => {
     try {
       const request = await axios({
         method: "GET",
-        url: `${process.env.BASE}/players/streamName=${params.streamName}`,
+        url: `${process.env.BASE_SERVER}/players/streamName=${params.streamName}`,
       });
       return request.data;
     } catch (err) {
@@ -27,7 +26,7 @@ export const getPlayers = async (params) => {
   try {
     const request = await axios({
       method: "GET",
-      url: `${process.env.BASE}/players/${params.guild}`,
+      url: `${process.env.BASE_SERVER}/players/guild=${params.guild}`,
     });
 
     return request.data;
@@ -40,7 +39,7 @@ export const addPlayer = async (body) => {
   try {
     const request = await axios({
       method: "POST",
-      url: `${process.env.BASE}/players`,
+      url: `${process.env.BASE_SERVER}/players`,
       data: body,
     });
 
@@ -55,7 +54,7 @@ export const deletePlayer = async (guild, player) => {
     try {
       const request = await axios({
         method: "DELETE",
-        url: `${process.env.BASE}/players/${guild}/${player}`,
+        url: `${process.env.BASE_SERVER}/players/${guild}/${player}`,
       });
 
       return request.data;
@@ -67,7 +66,7 @@ export const deletePlayer = async (guild, player) => {
   try {
     const request = await axios({
       method: "DELETE",
-      url: `${process.env.BASE}/players/${guild}`,
+      url: `${process.env.BASE_SERVER}/players/${guild}`,
     });
 
     return request.data;

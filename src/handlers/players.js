@@ -7,7 +7,7 @@ export const playerHandler = async (message) => {
   const guild = message.guildId;
   const embed = new Discord.MessageEmbed();
   const { players } = await requests.getPlayers({ guild, character });
-  console.log(players);
+
   players.forEach((player) => {
     if (player.stream) {
       embed.addFields(
@@ -44,23 +44,26 @@ export const addPlayerHandler = async (message) => {
     region,
     character,
     stream,
-    guild_id: parseInt(message.guildId, 10),
+    guild_id: message.guildId,
   };
+
   const response = await requests.addPlayer(body);
   if (response.error) {
-    try {
-      if (response.error.errors[0].message === "name must be unique") { embed.setDescription(`Player ${player} already exists`); }
-    } catch (e) {
-      embed.setDescription("could not add player");
-    }
-
+    embed.setDescription("could not add player");
     embed.setTitle("Error");
     embed.setColor("RED");
     return { embeds: [embed] };
   }
 
+  if (!response[1]) {
+    embed.setTitle("Error");
+    embed.setDescription(`Player: **${response[0].name}** already exists`);
+    embed.setColor("YELLOW");
+    return { embeds: [embed] };
+  }
+
   embed.setTitle("Success");
-  embed.setDescription(`Succesfully added player: **${response.name}**`);
+  embed.setDescription(`Succesfully added player: **${response[0].name}**`);
   embed.setColor("GREEN");
 
   return { embeds: [embed] };
@@ -80,7 +83,7 @@ export const deletePlayerHandler = async (message) => {
     return { embeds: [embed] };
   }
 
-  const response = await requests.deletePlayer(parseInt(message.guildId, 10), player);
+  const response = await requests.deletePlayer(message.guildId, player);
   if (response.error) {
     embed.setTitle("Error");
     embed.setDescription("Could not delete player");

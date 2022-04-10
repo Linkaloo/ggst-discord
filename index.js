@@ -1,6 +1,5 @@
 import express from "express";
 import bodyParser from "body-parser";
-import Bot from "./src/Bot.js";
 import * as middleWare from "./src/middleware/index.js";
 
 const app = express();
@@ -17,7 +16,7 @@ app.use(bodyParser.raw({ verify: rawBodySaver, type: "*/*" }));
 
 app.use(middleWare.signatureValidation);
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3001;
 app.listen(port, () => {
   console.log(`Listening on port: ${port}`);
 });

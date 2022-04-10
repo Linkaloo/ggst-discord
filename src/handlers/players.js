@@ -3,10 +3,10 @@ import * as requests from "../requests/index.js";
 
 export const playerHandler = async (message) => {
   const baseMessage = message.content.substring(message.content.indexOf("s") + 2);
-  const characterName = baseMessage.split(" ").filter((s) => s !== "").join(" ");
+  const character = baseMessage.split(" ").filter((s) => s !== "").join(" ");
   const guild = parseInt(message.guildId, 10);
   const embed = new Discord.MessageEmbed();
-  const { players } = await requests.getPlayers(guild, characterName);
+  const { players } = await requests.getPlayers({ guild, character });
 
   players.forEach((player) => {
     if (player.stream) {

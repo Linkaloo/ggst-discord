@@ -1,7 +1,6 @@
 import { Client, Intents } from "discord.js";
 import dotenv from "dotenv";
 import messageHandler from "./handlers/MessageHandler.js";
-import twitchHandler from "./handlers/twichHandler.js";
 
 dotenv.config();
 

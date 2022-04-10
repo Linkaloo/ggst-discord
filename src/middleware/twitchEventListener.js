@@ -1,6 +1,6 @@
 /* eslint-disable import/prefer-default-export */
-import axios from "axios";
 import crypto from "crypto";
+import { twitchHandler } from "../handlers/twitchEventHandler.js";
 
 // Notification request headers
 const TWITCH_MESSAGE_ID = "Twitch-Eventsub-Message-Id".toLowerCase();
@@ -37,12 +37,6 @@ function verifyMessage(hmac, verifySignature) {
   return crypto.timingSafeEqual(Buffer.from(hmac), Buffer.from(verifySignature));
 }
 
-const handleData = async (req) => {
-  console.log(req.body);
-  const twitchEvent = req.body.event;
-  console.log(twitchEvent);
-};
-
 export const signatureValidation = async (req, res, next) => {
   console.log("eventSub");
 
@@ -65,7 +59,7 @@ export const signatureValidation = async (req, res, next) => {
     if (MESSAGE_TYPE_NOTIFICATION === req.headers[MESSAGE_TYPE]) {
       // TODO: Do something with the event's data.
       console.log("message notification");
-      await handleData(req);
+      twitchHandler(req);
 
       console.log(`Event type: ${notification.subscription.type}`);
       console.log(JSON.stringify(notification.event, null, 4));
@@ -73,7 +67,6 @@ export const signatureValidation = async (req, res, next) => {
       res.sendStatus(204);
     } else if (MESSAGE_TYPE_VERIFICATION === req.headers[MESSAGE_TYPE]) {
       console.log("message verification");
-      await handleData(req);
       res.status(200).send(notification.challenge);
     } else if (MESSAGE_TYPE_REVOCATION === req.headers[MESSAGE_TYPE]) {
       res.sendStatus(204);

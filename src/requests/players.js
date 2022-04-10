@@ -1,12 +1,22 @@
 import Discord from "discord.js";
 import axios from "axios";
 
-export const getPlayers = async (guild, character) => {
-  if (character) {
+export const getPlayers = async (params) => {
+  if (params.guild && params.character) {
     try {
       const request = await axios({
         method: "GET",
-        url: `${process.env.BASE}/players/${guild}/${character}`,
+        url: `${process.env.BASE}/players/guild=${params.guild}/character=${params.character}`,
+      });
+      return request.data;
+    } catch (err) {
+      return err;
+    }
+  } else if (params.streamName) {
+    try {
+      const request = await axios({
+        method: "GET",
+        url: `${process.env.BASE}/players/streamName=${params.streamName}`,
       });
       return request.data;
     } catch (err) {
@@ -17,7 +27,7 @@ export const getPlayers = async (guild, character) => {
   try {
     const request = await axios({
       method: "GET",
-      url: `${process.env.BASE}/players/${guild}`,
+      url: `${process.env.BASE}/players/${params.guild}`,
     });
 
     return request.data;

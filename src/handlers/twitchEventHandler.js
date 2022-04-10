@@ -29,9 +29,35 @@ export const twitchHandler = (eventInfo) => {
   }
 };
 
-export const addHook = async () => {
+export const addHook = async (username) => {
   const token = authenticate();
   try {
+    console.log("getting user info");
+    const user = await axios({
+      method: "GET",
+      url: `https://api.twitch.tv/helix/users?login=${username}`,
+      headers: {
+        Authorization: `Bearer ${token.access_token}`,
+        "Client-ID": process.env.TWITCH_CLIENT_ID,
+      },
+    });
+
+    const userid = user.data.id;
+
+    const body = {
+      version: "1",
+      type: "stream.online",
+      condition: {
+        broadcaster_user_id: userid,
+      },
+      transport: {
+        method: "webhook",
+        callback: "https://ggst-discord.herokuapp.com",
+        secret: process.env.SECRET,
+      },
+    };
+
+    console.log("trying to add hook");
     await axios({
       method: "POST",
       url: process.env.TWITCH_SUB,
@@ -39,6 +65,7 @@ export const addHook = async () => {
         Authorization: `Bearer ${token.access_token}`,
         "Client-ID": process.env.TWITCH_CLIENT_ID,
       },
+      body,
     });
 
     return "success";

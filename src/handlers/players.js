@@ -69,7 +69,9 @@ export const addPlayerHandler = async (message) => {
   embed.setColor("GREEN");
 
   if (response[0].stream !== "") {
-    const hook = await addHook();
+    const username = response[0].stream.substring(23);
+    console.log(username);
+    const hook = await addHook(username);
     if (hook === "success") {
       embed.footer = "player's stream added to notifications";
     } else {

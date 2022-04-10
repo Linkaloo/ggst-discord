@@ -69,7 +69,7 @@ export const addPlayerHandler = async (message) => {
   embed.setColor("GREEN");
 
   if (response[0].stream !== "") {
-    const username = response[0].stream.substring(23);
+    const username = response[0].stream.substring(22);
     console.log(username);
     const hook = await addHook(username);
     if (hook === "success") {

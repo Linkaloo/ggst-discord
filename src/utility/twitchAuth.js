@@ -9,6 +9,7 @@ const token = {
 };
 
 const generateToken = async () => {
+  console.log("generating token");
   const auth = await Axios({
     method: "POST",
     url: `https://id.twitch.tv/oauth2/token?client_id=${process.env.TWITCH_CLIENT_ID}&client_secret=${process.env.TWITCH_CLIENT_SECRET}4&grant_type=client_credentials`,

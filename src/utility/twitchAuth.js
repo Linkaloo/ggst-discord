@@ -2,7 +2,7 @@
 import Axios from "axios";
 
 const token = {
-  access_token: "",
+  access_token: "mj4f66s2vd3nu2ct3rukzr3c2576q2",
   expires_in: -1,
   token_type: "",
   updated_date: new Date(),
@@ -11,7 +11,7 @@ const token = {
 const generateToken = async () => {
   const auth = await Axios({
     method: "POST",
-    url: `https://id.twitch.tv/oauth2/token?client_id=${process.env.TWITCH_CLIENTID}&client_secret=${process.env.TWITCH_CLIENTSECRENT}4&grant_type=client_credentials`,
+    url: `https://id.twitch.tv/oauth2/token?client_id=${process.env.TWITCH_CLIENT_ID}&client_secret=${process.env.TWITCH_CLIENT_SECRET}4&grant_type=client_credentials`,
   });
 
   token.access_token = auth.data.access_token;

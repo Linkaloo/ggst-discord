@@ -1,5 +1,6 @@
 import Discord from "discord.js";
 import * as requests from "../requests/index.js";
+import { addHook } from "./twitchEventHandler.js";
 
 export const playerHandler = async (message) => {
   const baseMessage = message.content.substring(message.content.indexOf("s") + 2);
@@ -66,6 +67,15 @@ export const addPlayerHandler = async (message) => {
   embed.setTitle("Success");
   embed.setDescription(`Succesfully added player: **${response[0].name}**`);
   embed.setColor("GREEN");
+
+  if (response[0].stream !== "") {
+    const hook = await addHook();
+    if (hook === "success") {
+      embed.footer = "player's stream added to notifications";
+    } else {
+      embed.footer = "player's stream was not added";
+    }
+  }
 
   return { embeds: [embed] };
 };

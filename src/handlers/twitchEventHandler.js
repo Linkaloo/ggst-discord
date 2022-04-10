@@ -66,7 +66,7 @@ export const addHook = async (username) => {
         Authorization: `Bearer ${token.access_token}`,
         "Client-ID": process.env.TWITCH_CLIENT_ID,
       },
-      body,
+      data: body,
     });
 
     return "success";

@@ -37,10 +37,7 @@ function verifyMessage(hmac, verifySignature) {
 }
 
 export const signatureValidation = async (req, res, next) => {
-  console.log("eventSub");
-  console.log(req.headers);
   if (!req.headers["twitch-eventsub-message-signature"]) {
-    console.log("before next");
     req.twitchReq = false;
     next();
     return;
@@ -49,38 +46,24 @@ export const signatureValidation = async (req, res, next) => {
   const secret = getSecret();
   const message = getHmacMessage(req);
   const hmac = HMAC_PREFIX + getHmac(secret, message);
-  console.log(hmac);
   if (verifyMessage(hmac, req.headers[TWITCH_MESSAGE_SIGNATURE]) === true) {
-    console.log("signatures match");
-
     // Get JSON object from body, so you can process the message.
     const notification = req.body;
 
     if (MESSAGE_TYPE_NOTIFICATION === req.headers[MESSAGE_TYPE]) {
       // TODO: Do something with the event's data.
-      console.log("message notification");
       req.twitchReq = true;
       next();
 
-      console.log(`Event type: ${notification.subscription.type}`);
-      console.log(JSON.stringify(notification.event, null, 4));
-
       res.sendStatus(204);
     } else if (MESSAGE_TYPE_VERIFICATION === req.headers[MESSAGE_TYPE]) {
-      console.log("message verification");
       res.status(200).send(notification.challenge);
     } else if (MESSAGE_TYPE_REVOCATION === req.headers[MESSAGE_TYPE]) {
       res.sendStatus(204);
-
-      console.log(`${notification.subscription.type} notifications revoked!`);
-      console.log(`reason: ${notification.subscription.status}`);
-      console.log(`condition: ${JSON.stringify(notification.subscription.condition, null, 4)}`);
     } else {
       res.sendStatus(204);
-      console.log(`Unknown message type: ${req.headers[MESSAGE_TYPE]}`);
     }
   } else {
-    console.log("403"); // Signatures didn't match.
     res.sendStatus(403);
   }
 };

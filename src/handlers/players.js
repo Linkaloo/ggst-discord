@@ -1,21 +1,28 @@
-import Discord from "discord.js";
 import * as requests from "../requests/index.js";
-import { addHook } from "../utility/twitchAuth.js";
+import { addHook, createBasicEmbed } from "../utility/index.js";
+import { aliases } from "../constants/index.js";
 
 export const playerHandler = async (message) => {
-  const baseMessage = message.content.substring(message.content.indexOf("s") + 2);
-  const character = baseMessage.split(" ").filter((s) => s !== "").join(" ");
+  const baseMessage = message.content.substring(message.content.indexOf(" ") + 1);
+  const characterInput = baseMessage.split(" ").filter((s) => s !== "").join(" ");
   const guild = message.guildId;
-  const embed = new Discord.MessageEmbed();
-  const { players } = await requests.getPlayers({ guild, character });
 
+  let request;
+  if (baseMessage[0] === "!") {
+    request = await requests.getPlayers({ guild });
+  } else {
+    const character = aliases[characterInput];
+    request = await requests.getPlayers({ guild, character });
+  }
+
+  const { players } = request;
   if (players === undefined || players.length === 0) {
-    embed.setDescription("There are no players in this server");
-    embed.setTitle("Warning");
-    embed.setColor("YELLOW");
+    const desc = "There are no players in this server";
+    const embed = createBasicEmbed({ title: "Warning", desc, color: "YELLOW" });
     return { embeds: [embed] };
   }
 
+  const embed = createBasicEmbed({ title: "Players DEv", desc: null, color: "GREEN" });
   players.forEach((player) => {
     if (player.stream) {
       embed.addFields(
@@ -27,18 +34,16 @@ export const playerHandler = async (message) => {
       );
     }
   });
-  embed.setTitle("Players");
-  embed.setColor("GREEN");
   return { embeds: [embed] };
 };
 
 export const addPlayerHandler = async (message) => {
   const baseMessage = message.content.substring(message.content.indexOf(" ") + 1);
   const params = baseMessage.split(",").filter((s) => s !== "");
-  const embed = new Discord.MessageEmbed();
 
   if (baseMessage[0] === "!" || params.length < 2) {
-    const embed = new Discord.MessageEmbed().setDescription("Provide a name, character, region, and stream, comma separated").setColor("RED");
+    const desc = "Provide a name, character, region, and stream, comma separated";
+    const embed = createBasicEmbed({ title: "Error", desc, color: "RED" });
     return { embeds: [embed] };
   }
 
@@ -48,84 +53,73 @@ export const addPlayerHandler = async (message) => {
   const stream = params.length === 4 ? params[3].replace(/^\s/g, "").replace(/\s{2,}/g, " ") : null;
 
   if (player.includes("http") || character.includes("http") || (region && region.includes("http"))) {
-    embed.setColor("RED");
-    embed.setDescription("Provide your arguments comma separated, url only for stream");
+    const desc = "Provide your arguments comma separated, url only for stream";
+    const embed = createBasicEmbed({ title: "Warning", desc, color: "RED" });
     return { embeds: [embed] };
   }
 
   const body = {
     name: player,
     region,
-    character,
+    character: aliases[character],
     stream,
     guild_id: message.guildId,
   };
 
   const response = await requests.addPlayer(body);
   if (response.error) {
-    console.log(response.error);
-    embed.setDescription("could not add player");
-    embed.setTitle("Error");
-    embed.setColor("RED");
+    const desc = "could not add player";
+    const embed = createBasicEmbed({ title: "Error", desc, color: "RED" });
     return { embeds: [embed] };
   }
 
   if (!response[1]) {
-    embed.setTitle("Error");
-    embed.setDescription(`Player: **${response[0].name}** already exists`);
-    embed.setColor("YELLOW");
+    const desc = `Player: **${response[0].name}** already exists`;
+    const embed = createBasicEmbed({ title: "Warning", desc, color: "YELLOW" });
     return { embeds: [embed] };
   }
 
-  embed.setTitle("Success");
-  embed.setDescription(`Succesfully added player: **${response[0].name}**`);
-  embed.setColor("GREEN");
+  const desc = `Succesfully added player: **${response[0].name}**`;
+  const embed = createBasicEmbed({ title: "Success", desc, color: "GREEN" });
 
   if (stream !== null) {
     const username = stream.substring(22);
     const hook = await addHook(username);
-    if (hook === "success") {
-      embed.setFooter({ text: "player's stream added to notifications" });
+    if (hook === "success" || hook === "exists") {
+      embed.setFooter({ text: "player's stream will send notifications" });
     } else {
-      embed.setFooter({ text: "player's stream was not added" });
+      embed.setFooter({ text: "player's stream will not send notifications" });
     }
   }
 
   return { embeds: [embed] };
 };
 
-export const updatePlayerHandler = async (message) => {
-
-};
-
 export const deletePlayerHandler = async (message) => {
   const baseMessage = message.content.substring(message.content.indexOf(" ") + 1);
   const player = baseMessage.split(" ").filter((s) => s !== "").join(" ");
-  const embed = new Discord.MessageEmbed();
 
   if (player[0] === "!") {
-    embed.setDescription("Provide a player's name").setColor("RED");
+    const desc = "Provide a player's name";
+    const embed = createBasicEmbed({ title: "Error", desc, color: "RED" });
     return { embeds: [embed] };
   }
 
-  const response = await requests.deletePlayer(message.guildId, player);
+  const response = await requests.deletePlayer({ guildId: message.guildId, player });
   if (response.error) {
-    embed.setTitle("Error");
-    embed.setDescription("Could not delete player");
-    embed.setColor("RED");
+    const desc = "Could not delete player";
+    const embed = createBasicEmbed({ title: "Error", desc, color: "RED" });
     return { embeds: [embed] };
   }
 
   if (response.total_deleted === 0) {
-    embed.setTitle("Error");
-    embed.setDescription(`No player named ${player} to delete`);
-    embed.setColor("YELLOW");
+    const desc = `No player named ${player} to delete`;
+    const embed = createBasicEmbed({ title: "Warning", desc, color: "YELLOW" });
     return { embeds: [embed] };
   }
 
-  embed.setTitle("Success");
-  embed.setDescription(`Succesfully deleted player: **${player}**`);
-  embed.setColor("GREEN");
+  const desc = `Succesfully deleted player: **${player}**`;
+  const embed = createBasicEmbed({ title: "Success", desc, color: "GREEN" });
 
   return { embeds: [embed] };
 };
@@ -133,24 +127,22 @@ export const deletePlayerHandler = async (message) => {
 export const deleteAllPlayersHandler = async (message) => {
   const baseMessage = message.content.substring(message.content.indexOf(" ") + 1);
   const character = baseMessage.split(" ").filter((s) => s !== "").join(" ");
-  const embed = new Discord.MessageEmbed();
+
   if (baseMessage[0] === "!") {
-    embed.setTitle("Error");
-    embed.setDescription("Enter a character to delete all the player records");
-    embed.setColor("RED");
+    const desc = "Enter a character to delete all the player records of that character";
+    const embed = createBasicEmbed({ title: "Error", desc, color: "RED" });
     return { embeds: [embed] };
   }
 
-  const response = await requests.deletePlayer(message.guildId);
+  const response = await requests.deletePlayer({ guildId: message.guildId, character: aliases[character] });
   if (response.total_deleted === 0) {
-    embed.setTitle("Warning");
-    embed.setDescription(`There were no players for character ${character} to delete`);
-    embed.setColor("YELLOW");
+    const desc = `There were no players for character ${aliases[character]} to delete`;
+    const embed = createBasicEmbed({ title: "Warning", desc, color: "YELLOW" });
     return { embeds: [embed] };
   }
 
-  embed.setTitle("Success");
-  embed.setDescription(`Deleted ${response.total_deleted} players for character ${character}`);
-  embed.setColor("GREEN");
+  const desc = `Deleted ${response.total_deleted} players for character ${aliases[character]}`;
+  const embed = createBasicEmbed({ title: "Success", desc, color: "GREEN" });
+
   return { embeds: [embed] };
 };

@@ -1,5 +1,5 @@
 /* eslint-disable import/prefer-default-export */
-export const alias = {
+export const aliases = {
   "Ramlethal Valentine": "Ramlethal Valentine",
   Ram: "Ramlethal Valentine",
   RA: "Ramlethal Valentine",
@@ -17,14 +17,4 @@ export const alias = {
   "Jack-O Valentine": "Jack-O Valentine",
   "Jack-O": "Jack-O Valentine",
   "Jack O": "Jack-O Valentine",
-
 };
-
-const al = [
-  "Ramlethal Valentine", "Ram", "RA",
-  "Millia Rage", "Millia", "MI",
-  "Faust", "FA",
-  "Potemkin", "Pot", "PO",
-  "Nagoriyuki", "Nago", "NA",
-  "Jack-O Valentine", "Jack-O", "",
-];

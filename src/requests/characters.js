@@ -1,11 +1,9 @@
-import Discord from "discord.js";
 import axios from "axios";
 
-export const getCharacters = async (query) => {
+export const getCharacters = async () => {
   const request = await axios({
     method: "GET",
     url: `${process.env.BASE_SERVER}/characters`,
-    data: query,
   });
 
   return request.data;

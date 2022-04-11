@@ -4,7 +4,7 @@ import * as ggst from "./ggstHandler.js";
 
 const listCommands = () => {
   const embed = new Discord.MessageEmbed();
-  const commandList = Object.keys(constants.commands);
+  const commandList = Array.from(constants.commands);
   let embedFieldList = "";
 
   commandList.forEach((command) => {
@@ -23,19 +23,16 @@ const commandHandler = async (message) => {
     case "!help": return listCommands();
     case "!players": return ggst.playerHandler(message);
     case "!addplayer": return ggst.addPlayerHandler(message);
-    // case "!updateplayer": return ggst.updatePlayerHandler(message);
     case "!delplayer": return ggst.deletePlayerHandler(message);
     case "!delallplayers": return ggst.deleteAllPlayersHandler(message);
 
     case "!characters": return ggst.characterHandler(message);
     case "!addcharacter": return ggst.addCharacterHandler(message);
-    // case "!updatecharacter": return ggst.updateCharacterHandler(message);
     case "!delcharacter": return ggst.deleteCharacterHandler(message);
 
-    case "!fd": return ggst.characterMoveHandler(message);
+    case "!fd": return ggst.getCharacterMoveHandler(message);
     case "!addfd": return ggst.addMoveHandler(message);
     case "!fdall": return ggst.allCharacterMoveHandler(message);
-    // case "!updatefd": return ggst.updateMoveHandler(message);
     case "!delfd": return ggst.deleteMoveHandler(message);
     default: break;
   }
@@ -51,7 +48,7 @@ const processMessage = async (message) => {
   // check for command
   const commandString = message.content.split(" ")[0].trim();
   let newMessage;
-  if (constants.commands[commandString] !== undefined) {
+  if (constants.commands.has(commandString)) {
     newMessage = await commandHandler(message);
   }
 

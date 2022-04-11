@@ -20,5 +20,6 @@ module.exports = {
     "no-shadow": "warn",
     "linebreak-style": "off",
     "import/extensions": "off",
+    "max-len": "warn",
   },
 };

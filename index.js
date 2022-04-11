@@ -24,7 +24,6 @@ app.listen(port, () => {
 });
 
 app.use("/", (req, res) => {
-  console.log("home");
   res.sendStatus(200);
 });
 app.use("*", (req, res) => {

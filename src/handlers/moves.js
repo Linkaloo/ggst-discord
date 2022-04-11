@@ -1,26 +1,29 @@
-import Discord from "discord.js";
 import AsciiTable from "ascii-table";
 import * as requests from "../requests/index.js";
-import { parseCharacterAlias } from "../utility/parseAliases.js";
+import { createBasicEmbed } from "../utility/index.js";
+import { aliases } from "../constants/index.js";
 
-export const characterMoveHandler = async (message) => {
+export const getCharacterMoveHandler = async (message) => {
   const baseMessage = message.content.substring(message.content.indexOf(" ") + 1);
   const characterInput = baseMessage.split(" ").filter((s) => s !== "").join(" ");
-  const embed = new Discord.MessageEmbed();
-
-  if (characterInput[0] === "!") {
-    embed.setTitle("Error");
-    embed.setDescription("Provide a character idiot");
-    embed.setColor("RED");
+  if (baseMessage[0] === "!") {
+    const desc = "Provide a character's name";
+    const embed = createBasicEmbed({ title: "Error", desc, color: "RED" });
     return { embeds: [embed] };
   }
-  const character = parseCharacterAlias(characterInput);
-  const { attacks } = await requests.getCharacterFrameData(character);
 
+  const character = aliases[characterInput];
+
+  if (character === undefined) {
+    const desc = "Invalid character entered";
+    const embed = createBasicEmbed({ title: "Error", desc, color: "RED" });
+    return { embeds: [embed] };
+  }
+
+  const { attacks } = await requests.getFrameData({ character });
   if (attacks.length === 0) {
-    embed.setTitle("Error");
-    embed.setDescription("Either character or frame data do not exist");
-    embed.setColor("RED");
+    const desc = "Either the character or frame data do not exist";
+    const embed = createBasicEmbed({ title: "Error", desc, color: "RED" });
     return { embeds: [embed] };
   }
 
@@ -49,11 +52,10 @@ export const characterMoveHandler = async (message) => {
 export const addMoveHandler = async (message) => {
   const baseMessage = message.content.substring(message.content.indexOf(" ") + 1);
   const moveString = baseMessage.split(",").filter((s) => s !== "");
-  const embed = new Discord.MessageEmbed();
 
   if (baseMessage[0] === "!" || moveString.length < 9) {
-    embed.setColor("RED");
-    embed.setDescription("Provide the character name, input, damage, guard, startup, active frames, recovery frames, on block frames, and the attack level, comma separated");
+    const desc = "Provide the character name, input, damage, guard, startup, active frames, recovery frames, on block frames, and the attack level, comma separated";
+    const embed = createBasicEmbed({ title: "Error", desc, color: "RED" });
     return { embeds: [embed] };
   }
 
@@ -68,7 +70,7 @@ export const addMoveHandler = async (message) => {
   const attackLevel = moveString[8].replace(/^\s/g, "").replace(/\s{2,}/g, " ");
 
   const body = {
-    character,
+    character: aliases[character],
     input,
     damage: parseInt(damage, 10),
     guard,
@@ -82,15 +84,13 @@ export const addMoveHandler = async (message) => {
   const response = await requests.addFrameData(body);
 
   if (response.error) {
-    embed.setTitle("Error");
-    embed.setDescription("Could not add frame data to character or this move already exists");
-    embed.setColor("RED");
+    const desc = "Could not add frame data to character or this move already exists";
+    const embed = createBasicEmbed({ title: "Error", desc, color: "RED" });
     return { embeds: [embed] };
   }
 
-  embed.setTitle("Success");
-  embed.setDescription(`Succesfully added frame data for: **${response.input}**`);
-  embed.setColor("GREEN");
+  const desc = `Succesfully added frame data for: **${response.input}**`;
+  const embed = createBasicEmbed({ title: "Success", desc, color: "GREEN" });
 
   return { embeds: [embed] };
 };
@@ -100,17 +100,15 @@ export const allCharacterMoveHandler = async (message) => {
   const moveString = baseMessage.replace(/^\s/g, "").replace(/\s{2,}/g, "");
 
   if (moveString[0] === "!") {
-    const embed = new Discord.MessageEmbed();
-    embed.setColor("RED");
-    embed.setDescription("Enter an input idiot");
+    const desc = "Enter an input";
+    const embed = createBasicEmbed({ title: "Error", desc, color: "RED" });
     return { embeds: [embed] };
   }
 
-  const { attacks } = await requests.allFrameData(moveString);
+  const { attacks } = await requests.getFrameData({ input: moveString });
   if (attacks.length === 0) {
-    const embed = new Discord.MessageEmbed();
-    embed.setColor("RED");
-    embed.setDescription("Move does not exist for any character");
+    const desc = "Move does not exist for any character";
+    const embed = createBasicEmbed({ title: "Error", desc, color: "RED" });
     return { embeds: [embed] };
   }
 
@@ -140,39 +138,38 @@ export const allCharacterMoveHandler = async (message) => {
 export const deleteMoveHandler = async (message) => {
   const baseMessage = message.content.substring(message.content.indexOf(" ") + 1);
   const args = baseMessage.split(",").filter((s) => s !== "");
-  const embed = new Discord.MessageEmbed();
-
-  if (args[0][0] === "!" || args.length < 2) {
-    embed.setDescription("Provide a character and their move input, comma separated").setColor("RED");
+  if (baseMessage[0] === "!" || args.length < 2) {
+    const desc = "Provide a character and their move input, comma separated";
+    const embed = createBasicEmbed({ title: "Error", desc, color: "RED" });
     return { embeds: [embed] };
   }
 
-  const character = args[0].replace(/^\s/g, "").replace(/\s{2,}/g, "");
+  const characterInput = args[0].replace(/^\s/g, "").replace(/\s{2,}/g, "");
   const input = args[1].replace(/^\s/g, "").replace(/\s{2,}/g, "");
+
+  const character = aliases[characterInput];
 
   const response = await requests.deleteMove(character, input);
   if (response.error) {
-    console.log(response);
+    let desc = "";
     if (response.error === "Character not found") {
-      embed.setDescription(`Character: ${response.character} not found`);
+      desc = `Character: ${response.character} not found`;
     } else {
-      embed.setDescription("Could not delete move");
+      desc = "Could not delete move";
     }
-    embed.setTitle("Error");
-    embed.setColor("RED");
+
+    const embed = createBasicEmbed({ title: "Error", desc, color: "RED" });
     return { embeds: [embed] };
   }
 
   if (response.total_deleted === 0) {
-    embed.setTitle("Error");
-    embed.setDescription(`No move ${input} from ${character} to delete`);
-    embed.setColor("YELLOW");
+    const desc = `No move ${input} from ${character} to delete`;
+    const embed = createBasicEmbed({ title: "Error", desc, color: "RED" });
     return { embeds: [embed] };
   }
 
-  embed.setTitle("Success");
-  embed.setDescription(`Succesfully deleted move **${input}** from **${character}**`);
-  embed.setColor("GREEN");
+  const desc = `Succesfully deleted move **${input}** from **${character}**`;
+  const embed = createBasicEmbed({ title: "Success", desc, color: "GREEN" });
 
   return { embeds: [embed] };
 };

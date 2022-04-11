@@ -1,9 +1,16 @@
 import axios from "axios";
 
-export const getCharacterFrameData = async (characterName) => {
+export const getFrameData = async (params) => {
+  let query;
+  if (params.character) {
+    query = `character=${params.character}`;
+  } else if (params.input) {
+    query = `input=${params.input}`;
+  }
+
   const request = await axios({
     method: "GET",
-    url: `${process.env.BASE_SERVER}/attacks/${characterName}`,
+    url: `${process.env.BASE_SERVER}/attacks?${query}`,
   });
 
   return request.data;
@@ -16,23 +23,6 @@ export const addFrameData = async (body) => {
       url: `${process.env.BASE_SERVER}/attacks`,
       data: body,
     });
-    return request.data;
-  } catch (err) {
-    return err;
-  }
-};
-
-export const updateFrameData = async (vody) => {
-
-};
-
-export const allFrameData = async (move) => {
-  try {
-    const request = await axios({
-      method: "GET",
-      url: `${process.env.BASE_SERVER}/attacks/all/${move}`,
-    });
-
     return request.data;
   } catch (err) {
     return err;

@@ -1,7 +1,7 @@
 import express from "express";
 import bodyParser from "body-parser";
 import * as middleWare from "./src/middleware/index.js";
-import Bot from "./src/Bot";
+import Bot from "./src/Bot.js";
 import { twitchHandler } from "./src/handlers/twitchEventHandler.js";
 
 const app = express();

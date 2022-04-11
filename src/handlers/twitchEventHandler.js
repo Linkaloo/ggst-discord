@@ -1,11 +1,10 @@
 /* eslint-disable import/prefer-default-export */
 import * as requests from "../requests/index.js";
-import { getClient } from "../Bot.js";
+import Bot from "../Bot.js";
 
 const handleLiveChannel = async (eventInfo) => {
   const streamName = eventInfo.broadcaster_user_name;
   const { players } = await requests.getPlayers({ streamName });
-  const Bot = getClient();
   players.forEach(async (player) => {
     const guild = player.guild_id;
     const discordGuild = await Bot.guilds.cache.get(guild);

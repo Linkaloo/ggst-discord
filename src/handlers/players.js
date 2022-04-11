@@ -9,7 +9,7 @@ export const playerHandler = async (message) => {
   const embed = new Discord.MessageEmbed();
   const { players } = await requests.getPlayers({ guild, character });
 
-  if (players.length === 0) {
+  if (players === undefined || players.length === 0) {
     embed.setDescription("There are no players in this server");
     embed.setTitle("Warning");
     embed.setColor("YELLOW");

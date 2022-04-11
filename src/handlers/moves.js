@@ -1,6 +1,6 @@
 import AsciiTable from "ascii-table";
 import * as requests from "../requests/index.js";
-import { createBasicEmbed } from "../utility/index.js";
+import { createBasicEmbed, createAttackTable } from "../utility/index.js";
 import { aliases } from "../constants/index.js";
 
 export const getCharacterMoveHandler = async (message) => {
@@ -20,47 +20,21 @@ export const getCharacterMoveHandler = async (message) => {
     return { embeds: [embed] };
   }
 
-  const { attacks } = await requests.getFrameData({ character });
+  let { attacks } = await requests.getFrameData({ character });
   if (attacks.length === 0) {
     const desc = "Either the character or frame data do not exist";
     const embed = createBasicEmbed({ title: "Error", desc, color: "RED" });
     return { embeds: [embed] };
   }
+  const tables = [];
 
-  const table = new AsciiTable(`${attacks[0].Character.name} Frame Data`);
-
-  table.setHeading("Input", "Name", "Damage", "Guard", "Startup", "Active", "Recovery", "OnBlock", "Level");
-  const columns = 9;
-  attacks.forEach((attack) => {
-    const attackName = attack.name === undefined ? "-" : attack.name;
-    const damage = attack.damage === undefined ? "-" : attack.damage;
-    const guard = attack.guard === undefined ? "-" : attack.guard;
-    const startup = attack.startup === undefined ? "-" : attack.startup;
-    const active = attack.active === undefined ? "-" : attack.active;
-    const recovery = attack.recovery === undefined ? "-" : attack.recovery;
-    const onBlock = attack.on_block === undefined ? "-" : attack.on_block;
-    const attackLevel = attack.attack_level === undefined ? "-" : attack.attack_level;
-
-    table.addRow(
-      attack.input,
-      attackName,
-      damage,
-      guard,
-      startup,
-      active,
-      recovery,
-      onBlock,
-      attackLevel,
-    );
-  });
-
-  for (let i = 0; i < columns; i += 1) {
-    table.setAlign(i, AsciiTable.CENTER);
+  while (attacks.length > 0) {
+    const { table, lastElement } = createAttackTable(attacks);
+    attacks = attacks.slice(lastElement + 1);
+    tables.push(table);
   }
 
-  const stringTable = `\`\`\`json\n${table.toString()}\`\`\``;
-
-  return stringTable;
+  return { messages: tables };
 };
 
 export const addMoveHandler = async (message) => {

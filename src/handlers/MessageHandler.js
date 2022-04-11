@@ -41,7 +41,14 @@ const commandHandler = async (message) => {
 };
 
 const sendMessage = async (channel, message) => {
-  channel.send(message);
+  if (message.messages) {
+    const { messages } = message;
+    messages.forEach((m) => {
+      channel.send(m);
+    });
+  } else {
+    channel.send(message);
+  }
 };
 
 const processMessage = async (message) => {

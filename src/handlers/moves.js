@@ -29,20 +29,34 @@ export const getCharacterMoveHandler = async (message) => {
 
   const table = new AsciiTable(`${attacks[0].Character.name} Frame Data`);
 
-  table.setHeading("Input", "Damage", "Guard", "Startup", "Active", "Recovery", "OnBlock", "Level");
-
+  table.setHeading("Input", "Name", "Damage", "Guard", "Startup", "Active", "Recovery", "OnBlock", "Level");
+  const columns = 9;
   attacks.forEach((attack) => {
+    const attackName = attack.name === undefined ? "-" : attack.name;
+    const damage = attack.damage === undefined ? "-" : attack.damage;
+    const guard = attack.guard === undefined ? "-" : attack.guard;
+    const startup = attack.startup === undefined ? "-" : attack.startup;
+    const active = attack.active === undefined ? "-" : attack.active;
+    const recovery = attack.recovery === undefined ? "-" : attack.recovery;
+    const onBlock = attack.on_block === undefined ? "-" : attack.on_block;
+    const attackLevel = attack.attack_level === undefined ? "-" : attack.attack_level;
+
     table.addRow(
       attack.input,
-      attack.damage,
-      attack.guard,
-      attack.startup,
-      attack.active,
-      attack.recovery,
-      attack.on_block,
-      attack.attack_level,
+      attackName,
+      damage,
+      guard,
+      startup,
+      active,
+      recovery,
+      onBlock,
+      attackLevel,
     );
   });
+
+  for (let i = 0; i < columns; i += 1) {
+    table.setAlign(i, AsciiTable.CENTER);
+  }
 
   const stringTable = `\`\`\`json\n${table.toString()}\`\`\``;
 
@@ -53,32 +67,44 @@ export const addMoveHandler = async (message) => {
   const baseMessage = message.content.substring(message.content.indexOf(" ") + 1);
   const moveString = baseMessage.split(",").filter((s) => s !== "");
 
-  if (baseMessage[0] === "!" || moveString.length < 9) {
-    const desc = "Provide the character name, input, damage, guard, startup, active frames, recovery frames, on block frames, and the attack level, comma separated";
+  if (baseMessage[0] === "!" || moveString.length < 2) {
+    const desc = "Provide the character name, input, move name, damage, guard, startup, active frames, recovery frames, on block frames, and the attack level, comma separated"
+    + "\nYou can leave things blank if you dont know besides input and character";
     const embed = createBasicEmbed({ title: "Error", desc, color: "RED" });
     return { embeds: [embed] };
   }
 
   const character = moveString[0].replace(/^\s/g, "").replace(/\s{2,}/g, " ");
   const input = moveString[1].replace(/^\s/g, "").replace(/\s{2,}/g, " ");
-  const damage = moveString[2].replace(/^\s/g, "").replace(/\s{2,}/g, " ");
-  const guard = moveString[3].replace(/^\s/g, "").replace(/\s{2,}/g, " ");
-  const startup = moveString[4].replace(/^\s/g, "").replace(/\s{2,}/g, " ");
-  const active = moveString[5].replace(/^\s/g, "").replace(/\s{2,}/g, " ");
-  const recovery = moveString[6].replace(/^\s/g, "").replace(/\s{2,}/g, " ");
-  const onBlock = moveString[7].replace(/^\s/g, "").replace(/\s{2,}/g, " ");
-  const attackLevel = moveString[8].replace(/^\s/g, "").replace(/\s{2,}/g, " ");
+  let name = moveString[2].replace(/^\s/g, "").replace(/\s{2,}/g, " ");
+  let damage = moveString[3].replace(/^\s/g, "").replace(/\s{2,}/g, " ");
+  let guard = moveString[4].replace(/^\s/g, "").replace(/\s{2,}/g, " ");
+  let startup = moveString[5].replace(/^\s/g, "").replace(/\s{2,}/g, " ");
+  let active = moveString[6].replace(/^\s/g, "").replace(/\s{2,}/g, " ");
+  let recovery = moveString[7].replace(/^\s/g, "").replace(/\s{2,}/g, " ");
+  let onBlock = moveString[8].replace(/^\s/g, "").replace(/\s{2,}/g, " ");
+  let attackLevel = moveString[9].replace(/^\s/g, "").replace(/\s{2,}/g, " ");
+
+  name = name === " " ? null : name;
+  damage = damage === " " ? null : parseInt(damage, 10);
+  guard = guard === " " ? null : guard;
+  startup = startup === " " ? null : parseInt(startup, 10);
+  active = active === " " ? null : parseInt(active, 10);
+  recovery = recovery === " " ? null : parseInt(recovery, 10);
+  onBlock = onBlock === " " ? null : parseInt(onBlock, 10);
+  attackLevel = attackLevel === " " ? null : parseInt(attackLevel, 10);
 
   const body = {
     character: aliases[character],
     input,
-    damage: parseInt(damage, 10),
+    damage,
     guard,
-    startup: parseInt(startup, 10),
-    active: parseInt(active, 10),
-    recovery: parseInt(recovery, 10),
-    on_block: parseInt(onBlock, 10),
-    attack_level: parseInt(attackLevel, 10),
+    startup,
+    active,
+    recovery,
+    on_block: onBlock,
+    attack_level: attackLevel,
+    name,
   };
 
   const response = await requests.addFrameData(body);
